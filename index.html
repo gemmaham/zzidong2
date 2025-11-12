@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영상 제작 기간 계산기 | 기획영상파트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .form-group label .required {
+            color: #e53e3e;
+            margin-left: 4px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group select:hover {
+            border-color: #667eea;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .radio-option.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-option.checked {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 30px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-title::before {
+            content: "📅";
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .result-main {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .result-breakdown {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .result-breakdown-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .result-note::before {
+            content: "💡";
+            margin-right: 8px;
+        }
+
+        .warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .warning::before {
+            content: "⚠️";
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .result-main {
+                font-size: 28px;
+            }
+        }
+
+        .subcategory-note {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 8px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 영상 제작 기간 계산기</h1>
+            <p>기획영상파트</p>
+        </div>
+
+        <div class="form-container">
+            <form id="calculatorForm">
+                <!-- 1. 영상 종류 -->
+                <div class="form-group">
+                    <label>영상 종류 <span class="required">*</span></label>
+                    <select id="videoType" required>
+                        <option value="">선택하세요</option>
+                        <optgroup label="1. 인트로 (1분 이내 기준)">
+                            <option value="intro_teacher" data-days="7">1-1. 강사별 인트로 (+1주)</option>
+                            <option value="intro_event" data-days="7">1-2. 행사 인트로 (+1주)</option>
+                            <option value="intro_spot" data-days="7">1-3. 행사 스팟 (+1주)</option>
+                        </optgroup>
+                        <optgroup label="2. 인터뷰 (10분 기준)">
+                            <option value="interview_teacher" data-days="14">2-1. 강사 인터뷰 (+2주)</option>
+                            <option value="interview_student" data-days="14">2-2. 합격생 인터뷰 (+2주)</option>
+                            <option value="interview_both" data-days="14">2-3. 강사&합격생 인터뷰 (+2주)</option>
+                            <option value="interview_other" data-days="14">2-4. 기타 인터뷰 (+2주)</option>
+                        </optgroup>
+                        <optgroup label="3. 홍보영상 (3분 이내 기준)">
+                            <option value="promo_product" data-days="14">3-1. 상품 홍보영상 (+2주)</option>
+                            <option value="promo_live" data-days="14">3-2. 실사 홍보영상 (+2주)</option>
+                            <option value="promo_artfilm" data-days="14">3-3. Art Film (+2주)</option>
+                        </optgroup>
+                        <optgroup label="4. 스케치 영상 (3분 이내 기준)">
+                            <option value="sketch_event" data-days="7">4-1. 행사 스케치 (+1주)</option>
+                        </optgroup>
+                        <optgroup label="5. 기타 (10분 이내 기준)">
+                            <option value="other_vlog" data-days="14">5-1. 브이로그 (+2주)</option>
+                            <option value="other_video" data-days="14">5-2. 그 외 영상 (+2주)</option>
+                        </optgroup>
+                        <optgroup label="6. Shorts (3분 이내 기준)">
+                            <option value="shorts_lecture" data-days="2">6-1. 강의 발췌 Shorts (+2일)</option>
+                            <option value="shorts_content" data-days="2">6-2. 각종 컨텐츠 발췌 Shorts (+2일)</option>
+                            <option value="shorts_original" data-days="2">6-3. 기타 Shorts 전용 컨텐츠 (+2일)</option>
+                        </optgroup>
+                        <optgroup label="7. AI 활용 영상 (3분 이내 기준)">
+                            <option value="ai_long" data-days="3">7-1. AI 롱폼 (+3일)</option>
+                            <option value="ai_shorts" data-days="3">7-2. AI Shorts (+3일)</option>
+                        </optgroup>
+                    </select>
+                    <div class="subcategory-note" id="videoTypeNote"></div>
+                </div>
+
+                <!-- 2. 영상 길이 -->
+                <div class="form-group">
+                    <label>영상 길이 <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="videoLength" value="0" required>
+                            <span>기준 시간 이내 (+0일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="videoLength" value="2">
+                            <span>기준의 1.5배 (+2일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="videoLength" value="3">
+                            <span>기준의 2배 (+3일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="videoLength" value="5">
+                            <span>기준의 3배 이상 (+5일)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. 편집 복잡도 -->
+                <div class="form-group">
+                    <label>편집 복잡도 <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="editComplexity" value="0" required>
+                            <span>기본 편집 (컷 편집, 자막) (+0일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="editComplexity" value="2">
+                            <span>일반 편집 (효과, 트랜지션, BGM) (+2일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="editComplexity" value="5">
+                            <span>고급 편집 (모션그래픽, 애니메이션, 복잡한 효과) (+5일)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 4. 추가 작업 -->
+                <div class="form-group">
+                    <label>추가 작업 (선택사항)</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="extraWork" value="1" data-label="포인트 자막">
+                            <span>포인트 자막 작업 (+1일)</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="extraWork" value="1" data-label="그래픽/썸네일">
+                            <span>그래픽/썸네일 제작 (+1일)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. 수정 횟수 -->
+                <div class="form-group">
+                    <label>예상 수정 횟수 <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="revisions" value="0" required>
+                            <span>수정 없음 / 1회 (+0일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="revisions" value="1">
+                            <span>2회 수정 (+1일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="revisions" value="2">
+                            <span>3회 수정 (+2일)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="revisions" value="3">
+                            <span>4회 이상 (+3일)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 6. 긴급도 -->
+                <div class="form-group">
+                    <label>긴급도 <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="urgency" value="1" required>
+                            <span>일반 진행 (변동 없음)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="urgency" value="0.8">
+                            <span>약간 급함 (-20%, 다른 팀 작업 중일 경우 협의 필요)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="urgency" value="0.7">
+                            <span>매우 급함 (-30%, 상위 보고 필요)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="calculate-btn">📊 예상 기간 계산하기</button>
+            </form>
+
+            <!-- 결과 표시 -->
+            <div class="result-container" id="resultContainer">
+                <div class="result-title">예상 제작 기간</div>
+                <div class="result-main" id="resultDays"></div>
+                
+                <div class="result-breakdown">
+                    <div class="result-breakdown-title">세부 내역</div>
+                    <div id="breakdownItems"></div>
+                </div>
+
+                <div class="result-note" id="resultNote">
+                    실제 제작 기간은 프로젝트 상황, 팀 리소스, 외부 요인에 따라 달라질 수 있습니다.
+                </div>
+
+                <div id="warningMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 라디오 버튼 시각적 피드백
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                // 같은 그룹의 모든 옵션에서 selected 제거
+                document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.closest('.radio-option').classList.remove('selected');
+                });
+                
+                // 현재 옵션에 selected 추가
+                this.classList.add('selected');
+                radio.checked = true;
+            });
+        });
+
+        // 체크박스 시각적 피드백
+        document.querySelectorAll('.checkbox-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                
+                if (checkbox.checked) {
+                    this.classList.add('checked');
+                } else {
+                    this.classList.remove('checked');
+                }
+            });
+        });
+
+        // 영상 종류 선택 시 기준 시간 표시
+        const videoTypeSelect = document.getElementById('videoType');
+        const videoTypeNote = document.getElementById('videoTypeNote');
+        
+        const baseTimeMap = {
+            'intro_': '기준: 1분 이내',
+            'interview_': '기준: 10분',
+            'promo_': '기준: 3분 이내',
+            'sketch_': '기준: 3분 이내',
+            'other_': '기준: 10분 이내',
+            'shorts_': '기준: 3분 이내',
+            'ai_': '기준: 3분 이내'
+        };
+
+        videoTypeSelect.addEventListener('change', function() {
+            const value = this.value;
+            let noteText = '';
+            
+            for (const [prefix, text] of Object.entries(baseTimeMap)) {
+                if (value.startsWith(prefix)) {
+                    noteText = text;
+                    break;
+                }
+            }
+            
+            videoTypeNote.textContent = noteText;
+        });
+
+        // 폼 제출 처리
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 값 수집
+            const videoTypeSelect = document.getElementById('videoType');
+            const selectedOption = videoTypeSelect.options[videoTypeSelect.selectedIndex];
+            const baseDays = parseInt(selectedOption.dataset.days);
+            const videoTypeName = selectedOption.text;
+            
+            const videoLength = parseInt(document.querySelector('input[name="videoLength"]:checked').value);
+            const editComplexity = parseInt(document.querySelector('input[name="editComplexity"]:checked').value);
+            const urgency = parseFloat(document.querySelector('input[name="urgency"]:checked').value);
+            const revisions = parseInt(document.querySelector('input[name="revisions"]:checked').value);
+            
+            // 추가 작업 계산
+            const extraWorkCheckboxes = document.querySelectorAll('input[name="extraWork"]:checked');
+            let extraWorkDays = 0;
+            const extraWorkItems = [];
+            extraWorkCheckboxes.forEach(checkbox => {
+                extraWorkDays += parseInt(checkbox.value);
+                extraWorkItems.push(checkbox.dataset.label);
+            });
+            
+            // 총 계산 (긴급도 적용 전)
+            const totalBeforeUrgency = baseDays + videoLength + editComplexity + extraWorkDays + revisions;
+            
+            // 긴급도 적용
+            const finalDays = Math.ceil(totalBeforeUrgency * urgency);
+            
+            // 결과 표시
+            displayResult(finalDays, {
+                videoTypeName,
+                baseDays,
+                videoLength,
+                editComplexity,
+                extraWorkDays,
+                extraWorkItems,
+                revisions,
+                urgency,
+                totalBeforeUrgency
+            });
+        });
+
+        function displayResult(days, breakdown) {
+            const resultContainer = document.getElementById('resultContainer');
+            const resultDays = document.getElementById('resultDays');
+            const breakdownItems = document.getElementById('breakdownItems');
+            const warningMessage = document.getElementById('warningMessage');
+            
+            // 메인 결과
+            resultDays.textContent = `${days}일`;
+            
+            // 세부 내역
+            let breakdownHTML = '';
+            
+            breakdownHTML += `
+                <div class="breakdown-item">
+                    <span>${breakdown.videoTypeName}</span>
+                    <span>+${breakdown.baseDays}일</span>
+                </div>
+            `;
+            
+            if (breakdown.videoLength > 0) {
+                breakdownHTML += `
+                    <div class="breakdown-item">
+                        <span>영상 길이 초과</span>
+                        <span>+${breakdown.videoLength}일</span>
+                    </div>
+                `;
+            }
+            
+            if (breakdown.editComplexity > 0) {
+                breakdownHTML += `
+                    <div class="breakdown-item">
+                        <span>편집 복잡도</span>
+                        <span>+${breakdown.editComplexity}일</span>
+                    </div>
+                `;
+            }
+            
+            if (breakdown.extraWorkDays > 0) {
+                breakdownHTML += `
+                    <div class="breakdown-item">
+                        <span>추가 작업 (${breakdown.extraWorkItems.join(', ')})</span>
+                        <span>+${breakdown.extraWorkDays}일</span>
+                    </div>
+                `;
+            }
+            
+            if (breakdown.revisions > 0) {
+                breakdownHTML += `
+                    <div class="breakdown-item">
+                        <span>수정 작업</span>
+                        <span>+${breakdown.revisions}일</span>
+                    </div>
+                `;
+            }
+            
+            if (breakdown.urgency < 1) {
+                const reduction = Math.round((1 - breakdown.urgency) * 100);
+                const savedDays = breakdown.totalBeforeUrgency - days;
+                breakdownHTML += `
+                    <div class="breakdown-item">
+                        <span>긴급 진행 (-${reduction}%)</span>
+                        <span>-${savedDays}일</span>
+                    </div>
+                `;
+            }
+            
+            breakdownHTML += `
+                <div class="breakdown-item" style="border-top: 2px solid rgba(255,255,255,0.4); margin-top: 10px; padding-top: 15px; font-weight: 600; font-size: 18px;">
+                    <span>최종 예상 기간</span>
+                    <span>${days}일</span>
+                </div>
+            `;
+            
+            breakdownItems.innerHTML = breakdownHTML;
+            
+            // 경고 메시지
+            let warningHTML = '';
+            if (breakdown.urgency === 0.8) {
+                warningHTML = '<div class="warning">약간 급함: 다른 팀 작업이 진행 중일 경우 일정 협의가 필요합니다.</div>';
+            } else if (breakdown.urgency === 0.7) {
+                warningHTML = '<div class="warning">매우 급함: 상위 보고가 필요하며, 팀 리소스를 집중해야 합니다. 품질 저하 가능성을 고려해야 합니다.</div>';
+            }
+            warningMessage.innerHTML = warningHTML;
+            
+            // 결과 표시
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
